@@ -4,11 +4,11 @@ var PNG		 		= require('pngjs').PNG;
 
 // =================================================================================
 //
-// atlas_to_frames v1.0.2
+// atlas_to_frames v1.0.3
 //
 // Copyright (c) 2017 ambuddy
 //
-// This script extracts all frames from a PNG spritesheet according to its JSON-file
+// This script extracts all frames from a spritesheet according to its JSON-file
 // and puts them into the folder created next to it.
 //
 // Usage: node atlas_to_pics [filename.png[, filename.json[, output_foldername]]]
@@ -25,17 +25,17 @@ var PNG		 		= require('pngjs').PNG;
 // 
 // =================================================================================
 
-var atlasFile		= process.argv[2] || "atlas.png";
+var atlasFile		= process.argv[2] || "ui.png";
 var jsonFile		= process.argv[3] || path.basename(atlasFile).split(".png").join(".json");
-var outputFolder	= process.argv[4] || atlasFile + "_frames";
+var outputFolder	= process.argv[4] || path.basename(atlasFile, path.extname(atlasFile));				//console.log("outputFolder", outputFolder);
 var jsonPathSep		= "/";
 
 try
 {
 	if(!fs.existsSync(atlasFile) || !fs.existsSync(jsonFile))
 	{
-		fs.existsSync(atlasFile) || console.log("\n", "ERROR:", atlasFile, "NOT EXISTS", "\n");
-		fs.existsSync(jsonFile) || console.log("\n", "ERROR:", jsonFile, "NOT EXISTS", "\n");
+		!fs.existsSync(atlasFile) && console.log("\n", "ERROR:", atlasFile, "NOT EXISTS", "\n");
+		!fs.existsSync(jsonFile) && console.log("\n", "ERROR:", jsonFile, "NOT EXISTS", "\n");
 	}
 	else
 	{
@@ -75,11 +75,6 @@ try
 			});
 		}
 		
-		if(path.extname(atlasFile).toLowerCase() != '.png')
-		{
-			console.log("\n", "ONLY PNG SPRITESHEETS ARE SUPPORTED FOR THE TIME BEING", "\n");
-		}
-		
 		console.log("\n", "EXTRACTING FRAMES...", "\n");
 		
 		fs.createReadStream(atlasFile)
@@ -95,18 +90,12 @@ try
 						
 						doneCounter++;
 						
-						var item		= framesList[i];
-						var obj			= item.frame ? item.frame : {
-							"x"	:item[0],															// Use this to set frame's x coordinate
-							"y"	:item[1],															// Use this to set frame's y coordinate
-							"w"	:item[2],															// Use this to set frame's width
-							"h"	:item[3]															// Use this to set frame's height
-						};
-						var dstPath		= path.extname(i) == '' ? i + '.png' : i;
-						var dstBuffer		= new PNG({width:obj.w, height:obj.h});
+						var obj			= getSpriteParams(framesList[i]);
+						var dstPath		= path.extname(i).toLowerCase() != '.png' ? i + '.png' : i;
+						var dstBuffer	= new PNG({width:obj.wSrc, height:obj.hSrc});
 						var pct			= Math.round(doneCounter/framesNumber*100);
 						
-						parsedBuffer.bitblt(dstBuffer, obj.x, obj.y, obj.w, obj.h, 0, 0);
+						parsedBuffer.bitblt(dstBuffer, obj.x, obj.y, obj.w, obj.h, obj.xOfst, obj.yOfst);
 						
 						dstBuffer.pack().pipe(fs.createWriteStream(path.join(outputFolder, dstPath)));
 						
@@ -130,4 +119,31 @@ catch(e)
 {
 	console.error(e);
 	console.log("\n", "BUILD FAILED");
+}
+
+function getSpriteParams(item)
+{
+	var obj		= item.frame;
+	
+	obj.wSrc	= item.sourceSize ? item.sourceSize.w : obj.w;
+	obj.hSrc	= item.sourceSize ? item.sourceSize.h : obj.h;
+	
+	obj.xOfst	= item.spriteSourceSize ? item.spriteSourceSize.x : 0;
+	obj.yOfst	= item.spriteSourceSize ? item.spriteSourceSize.y : 0;
+	
+	if(!item.frame)																		// In case of using array of [x,y,width,height]
+	{
+		obj	= { 
+			"xOfst"	: 0,
+			"yOfst"	: 0, 
+			"x"		: item[0],															// Use this to set frame's x coordinate
+			"y"		: item[1],															// Use this to set frame's y coordinate
+			"w"		: item[2],															// Use this to set frame's width
+			"h"		: item[3]															// Use this to set frame's height
+		};
+		obj.wSrc	= obj.w;
+		obj.hSrc	= obj.h;
+	}
+	
+	return obj;
 }
