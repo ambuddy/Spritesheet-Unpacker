@@ -6,7 +6,7 @@ var PNG		 		= require('pngjs').PNG;
 //
 // Copyright (c) 2017 ambuddy
 //
-// This script extracts all frames from a spritesheet according to its JSON-file
+// This script extracts all frames from a PNG spritesheet according to its JSON-file
 // and puts them into the folder created next to it.
 //
 // Usage: node atlas_to_pics [filename.png[, filename.json[, output_foldername]]]
@@ -40,7 +40,7 @@ try
 		
 		console.log("\n", "CREATING FOLDERS...", "\n");
 		
-		if(!fs.existsSync(outputFolder))
+		if(outputFolder.length > 0 && !fs.existsSync(outputFolder))
 		{
 			console.log(outputFolder);
 			fs.mkdirSync(outputFolder);
@@ -65,6 +65,11 @@ try
 			});
 		}
 		
+		if(path.extname(atlasFile).toLowerCase() != '.png')
+		{
+			console.log("\n", "ONLY PNG SPRITESHEETS ARE SUPPORTED FOR THE TIME BEING", "\n");
+		}
+		
 		console.log("\n", "EXTRACTING FRAMES...", "\n");
 		
 		fs.createReadStream(atlasFile)
@@ -87,8 +92,8 @@ try
 							"w"	:item[2],															// Use this to set frame's width
 							"h"	:item[3]															// Use this to set frame's height
 						};
-						var dstPath		= !isNaN(i) ? i + '.png' : i;
-						var dstBuffer	= new PNG({width:obj.w, height:obj.h});
+						var dstPath		= path.extname(i) == '' ? i + '.png' : i;
+						var dstBuffer		= new PNG({width:obj.w, height:obj.h});
 						var pct			= Math.round(doneCounter/framesNumber*100);
 						
 						parsedBuffer.bitblt(dstBuffer, obj.x, obj.y, obj.w, obj.h, 0, 0);
