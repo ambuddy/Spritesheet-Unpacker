@@ -4,7 +4,7 @@
 This script extracts all frames from a spritesheet according to its JSON-file
 and puts them into the folder created next to it. 
 
-Usage: `node atlas_to_pics [filename.png[, filename.json[, output_foldername]]]`
+Usage: `node atlas_to_frames [filename.png[, filename.json[, output_foldername]]]`
 
 Assumes that spritesheet is a PNG-file and its JSON is a TexturePacker like (not rotated), i.e.
 ```json
