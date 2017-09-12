@@ -1,8 +1,10 @@
-﻿var fs 				= require('fs-extra');
+var fs 				= require('fs-extra');
 var path			= require('path');
 var PNG		 		= require('pngjs').PNG;
 
 // =================================================================================
+//
+// atlas_to_frames v1.0.2
 //
 // Copyright (c) 2017 ambuddy
 //
@@ -30,7 +32,15 @@ var jsonPathSep		= "/";
 
 try
 {
-	var framesList = JSON.parse(fs.readFileSync(jsonFile, {encoding: "UTF-8"})).frames;
+	if(!fs.existsSync(atlasFile) || !fs.existsSync(jsonFile))
+	{
+		fs.existsSync(atlasFile) || console.log("\n", "ERROR:", atlasFile, "NOT EXISTS", "\n");
+		fs.existsSync(jsonFile) || console.log("\n", "ERROR:", jsonFile, "NOT EXISTS", "\n");
+	}
+	else
+	{
+		var framesList = JSON.parse(fs.readFileSync(jsonFile, {encoding: "UTF-8"})).frames;
+	}
 	
 	if(framesList)
 	{
