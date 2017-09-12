@@ -4,6 +4,8 @@ var PNG		 		= require('pngjs').PNG;
 
 // =================================================================================
 //
+// Copyright (c) 2017 ambuddy
+//
 // This script extracts all frames from a spritesheet according to its JSON-file
 // and puts them into the folder created next to it.
 //
