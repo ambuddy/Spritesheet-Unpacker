@@ -4,7 +4,7 @@ var PNG		 		= require('pngjs').PNG;
 
 // =================================================================================
 //
-// atlas_to_frames v1.0.3
+// atlas_to_frames v1.0.4
 //
 // Copyright (c) 2017 ambuddy
 //
@@ -27,7 +27,7 @@ var PNG		 		= require('pngjs').PNG;
 
 var atlasFile		= process.argv[2] || "ui.png";
 var jsonFile		= process.argv[3] || path.basename(atlasFile).split(".png").join(".json");
-var outputFolder	= process.argv[4] || path.basename(atlasFile, path.extname(atlasFile));				//console.log("outputFolder", outputFolder);
+var outputFolder	= process.argv[4] || ""; //path.basename(atlasFile, path.extname(atlasFile));				console.log("outputFolder", outputFolder);
 var jsonPathSep		= "/";
 
 try
@@ -92,8 +92,10 @@ try
 						
 						var obj			= getSpriteParams(framesList[i]);
 						var dstPath		= path.extname(i).toLowerCase() != '.png' ? i + '.png' : i;
-						var dstBuffer	= new PNG({width:obj.wSrc, height:obj.hSrc});
+						var dstBuffer		= new PNG({width:obj.wSrc, height:obj.hSrc, inputHasAlpha:true});
 						var pct			= Math.round(doneCounter/framesNumber*100);
+						
+						initPixels(dstBuffer);
 						
 						parsedBuffer.bitblt(dstBuffer, obj.x, obj.y, obj.w, obj.h, obj.xOfst, obj.yOfst);
 						
@@ -107,7 +109,6 @@ try
 						}
 					})(i);
 				}
-				
 			});
 	}
 	else
@@ -119,6 +120,22 @@ catch(e)
 {
 	console.error(e);
 	console.log("\n", "BUILD FAILED");
+}
+
+function initPixels(dstBuffer)
+{
+	for(var y=0; y<dstBuffer.height; y++)
+	{
+		for(var x=0; x<dstBuffer.width; x++)
+		{
+			var idx = (dstBuffer.width * y + x) << 2;
+
+			dstBuffer.data[idx]		= 255;
+			dstBuffer.data[idx + 1] = 255;
+			dstBuffer.data[idx + 2] = 255;
+			dstBuffer.data[idx + 3] = 0;
+		}
+	}
 }
 
 function getSpriteParams(item)
