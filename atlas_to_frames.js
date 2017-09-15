@@ -27,7 +27,7 @@ var PNG		 		= require('pngjs').PNG;
 
 var atlasFile		= process.argv[2] || "ui.png";
 var jsonFile		= process.argv[3] || path.basename(atlasFile).split(".png").join(".json");
-var outputFolder	= process.argv[4] || ""; //path.basename(atlasFile, path.extname(atlasFile));				console.log("outputFolder", outputFolder);
+var outputFolder	= process.argv[4] || path.basename(atlasFile, path.extname(atlasFile));		//console.log("outputFolder", outputFolder);
 var jsonPathSep		= "/";
 
 try
