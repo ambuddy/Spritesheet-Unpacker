@@ -1,10 +1,10 @@
-## atlas_to_frames
-### Unpack sprites from PNG spritesheet (atlas) with _nodejs_
+## Spritesheet Unpacker
+### Unpack sprites from PNG spritesheet(atlas) with _nodejs_
 
 This script extracts all frames from a PNG spritesheet according to its JSON-file
 and puts them into the folder created next to it. 
 
-Usage: `node atlas_to_frames [filename.png[, filename.json[, output_foldername]]]`
+Usage: `node unpack [filename.png[, filename.json[, output_foldername]]]`
 
 Assumes that spritesheet is a PNG-file and its JSON is a TexturePacker like (not rotated), i.e.
 ```json
