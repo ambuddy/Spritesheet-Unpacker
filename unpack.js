@@ -4,7 +4,7 @@ var PNG		 		= require('pngjs').PNG;
 
 // =================================================================================
 //
-// Spritesheet Unpacker v1.0.5
+// Spritesheet Unpacker v1.0.6
 //
 // This script extracts all frames from a spritesheet according to its JSON-file
 // and puts them into the folder created next to it.
@@ -23,9 +23,16 @@ var PNG		 		= require('pngjs').PNG;
 // 
 // =================================================================================
 
-var atlasFile		= process.argv[2] || "atlas.png";
-var jsonFile		= process.argv[3] || "atlas.json"; //path.basename(atlasFile).split(".png").join(".json");
-var outputFolder	= process.argv[4] || path.basename(atlasFile, path.extname(atlasFile)) + "_frames";				console.log("outputFolder", outputFolder);
+var atlasFile		= process.argv[2] || "atlas.png";									console.log("\natlasFile:", atlasFile);
+
+if(path.extname(atlasFile) === "")
+{
+	atlasFile		+= ".png";															console.log("atlasFile:", atlasFile);
+}
+
+var filename		= path.basename(atlasFile).split(path.extname(atlasFile))[0];		console.log("filename:", filename);
+var jsonFile		= process.argv[3] || filename + ".json";							console.log("jsonFile:", jsonFile);
+var outputFolder	= process.argv[4] || filename + "_sprites";							console.log("outputFolder:", outputFolder);
 var jsonPathSep		= "/";
 
 try
@@ -88,8 +95,8 @@ try
 						
 						doneCounter++;
 						
-						var obj			= getSpriteParams(framesList[i]);									console.log(i, framesList[i], obj);
-						var dstPath		= path.extname(i).toLowerCase() != '.png' ? i + '.png' : i;			console.log("dstPath =", dstPath);
+						var obj			= getSpriteParams(framesList[i]);									//console.log(i, framesList[i], obj);
+						var dstPath		= path.extname(i).toLowerCase() != '.png' ? i + '.png' : i;			//console.log("dstPath =", dstPath);
 						var dstBuffer	= new PNG({width:obj.wSrc, height:obj.hSrc, inputHasAlpha:true});
 						var pct			= Math.round(doneCounter/framesNumber*100);
 						
