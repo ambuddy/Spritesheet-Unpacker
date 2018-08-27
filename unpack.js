@@ -4,7 +4,7 @@ var PNG		 		= require('pngjs').PNG;
 
 // =================================================================================
 //
-// Spritesheet Unpacker v1.0.6
+// Spritesheet Unpacker v1.0.7
 //
 // This script extracts all frames from a spritesheet according to its JSON-file
 // and puts them into the folder created next to it.
@@ -52,6 +52,7 @@ try
 		var frameNames		= Object.keys(framesList);												// in case framesList is Object, not Array
 		var framesNumber	= framesList.length ? framesList.length : frameNames.length;
 		var doneCounter		= 0;
+		var errorCounter	= 0;
 		
 		console.log("\n", "CREATING FOLDERS...", "\n");
 		
@@ -93,24 +94,34 @@ try
 					//break;
 					(function(i) {
 						
-						doneCounter++;
+						var obj				= getSpriteParams(framesList[i]);									//console.log(i, framesList[i], obj);
+						var dstPath			= path.extname(i).toLowerCase() != '.png' ? i + '.png' : i;			//console.log("dstPath =", dstPath);
 						
-						var obj			= getSpriteParams(framesList[i]);									//console.log(i, framesList[i], obj);
-						var dstPath		= path.extname(i).toLowerCase() != '.png' ? i + '.png' : i;			//console.log("dstPath =", dstPath);
-						var dstBuffer	= new PNG({width:obj.wSrc, height:obj.hSrc, inputHasAlpha:true});
-						var pct			= Math.round(doneCounter/framesNumber*100);
+						if(!obj || !obj.w || !obj.h)
+						{
+							console.log("Error parsing item", i, framesList[i], obj);
+							errorCounter++;
+						}
+						else
+						{
+							doneCounter++;
+							
+							var dstBuffer	= new PNG({width:obj.wSrc, height:obj.hSrc, inputHasAlpha:true});
+							var pct			= Math.round(doneCounter/framesNumber*100);
+							
+							initPixels(dstBuffer);
+							
+							parsedBuffer.bitblt(dstBuffer, obj.x, obj.y, obj.w, obj.h, obj.xOfst, obj.yOfst);
+							
+							dstBuffer.pack().pipe(fs.createWriteStream(path.join(outputFolder, dstPath)));
+							
+							console.log('['+pct+'%] -', path.join(outputFolder, dstPath));
+						}
 						
-						initPixels(dstBuffer);
-						
-						parsedBuffer.bitblt(dstBuffer, obj.x, obj.y, obj.w, obj.h, obj.xOfst, obj.yOfst);
-						
-						dstBuffer.pack().pipe(fs.createWriteStream(path.join(outputFolder, dstPath)));
-						
-						console.log('['+pct+'%] -', path.join(outputFolder, dstPath));
-						
-						if(doneCounter == framesNumber)
+						if(doneCounter+errorCounter >= framesNumber)
 						{
 							console.log("\n", "JOB IS DONE!");
+							errorCounter > 0 && console.log("\n", "BUT", errorCounter, "ERROR(S) OCCURED...", "\n");
 						}
 					})(i);
 				}
