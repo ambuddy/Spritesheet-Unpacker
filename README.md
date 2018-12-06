@@ -35,3 +35,7 @@ or is array "frames" of [x,y,width,height] arrays, i.e.
 ```
 
 'fs-extra', 'path' and '[pngjs](https://www.npmjs.com/package/pngjs)' packages required. Use '`npm install pngjs`', etc.
+
+
+### History:
+1.1.0 Rotated sprites are now supported (but not rotated back)
