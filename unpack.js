@@ -4,7 +4,7 @@ var PNG		 		= require('pngjs').PNG;
 
 // =================================================================================
 //
-// Spritesheet Unpacker v1.0.7
+// Spritesheet Unpacker v1.1.0
 //
 // This script extracts all frames from a spritesheet according to its JSON-file
 // and puts them into the folder created next to it.
@@ -20,6 +20,9 @@ var PNG		 		= require('pngjs').PNG;
 // ]}
 //
 // 'fs-extra', 'path' and 'pngjs' packages required. Use 'npm install pngjs', etc.
+//
+//	History:
+//	1.1.0 Rotated sprites are now supported (but not rotated back)
 // 
 // =================================================================================
 
@@ -108,6 +111,7 @@ try
 							
 							var dstBuffer	= new PNG({width:obj.wSrc, height:obj.hSrc, inputHasAlpha:true});
 							var pct			= Math.round(doneCounter/framesNumber*100);
+							var rotNote		= obj.rotated ? "- Note: pic were rotated." : "";
 							
 							initPixels(dstBuffer);
 							
@@ -115,7 +119,7 @@ try
 							
 							dstBuffer.pack().pipe(fs.createWriteStream(path.join(outputFolder, dstPath)));
 							
-							console.log('['+pct+'%] -', path.join(outputFolder, dstPath));
+							console.log('['+pct+'%] -', path.join(outputFolder, dstPath), rotNote);
 						}
 						
 						if(doneCounter+errorCounter >= framesNumber)
@@ -191,6 +195,22 @@ function getSpriteParams(item)
 		};
 		obj.wSrc	= obj.w;
 		obj.hSrc	= obj.h;
+	}
+	
+	if(item.rotated)
+	{
+		var tmp = {
+			"xOfst"	: obj.xOfst,
+			"wSrc"	: obj.wSrc,
+			"w"		: obj.w
+		};
+		obj.rotated	= true;
+		obj.xOfst	= obj.yOfst;
+		obj.yOfst	= tmp.xOfst;
+		obj.wSrc	= obj.hSrc;
+		obj.hSrc	= tmp.wSrc;
+		obj.w		= obj.h;
+		obj.h		= tmp.w;
 	}
 	
 	return obj;
